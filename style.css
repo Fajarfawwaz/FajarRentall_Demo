@@ -1,0 +1,11 @@
+/* Simulasi Display PHP */
+.page { display: none; }
+.page.active { display: block; }
+#page-admin.active { display: flex; }
+.hidden { display: none !important; }
+
+/* Styling Dasar */
+body { letter-spacing: -0.02em; }
+input { transition: all 0.3s ease; }
+button { transition: transform 0.1s active; }
+button:active { transform: scale(0.95); }

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fajarr Rental - Universal Version</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Paksa semua halaman menempati layar penuh agar tidak lari saat dibuka di WA */
+        html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+        
+        .page { display: none !important; width: 100%; height: 100%; overflow: auto; }
+        .page.active { display: flex !important; flex-direction: column; }
+        
+        /* Dashboard layout khusus */
+        #dashboard-page.active { display: flex !important; flex-direction: row; }
+        @media (max-width: 768px) {
+            #dashboard-page.active { flex-direction: column; }
+        }
+
+        .tab-content { width: 100%; height: 100%; }
+        
+        /* Animasi masuk */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900">
+
+    <section id="login-page" class="page active items-center justify-center bg-blue-600 p-4">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-[380px] text-center fade-in">
+            <h1 class="text-3xl font-black text-blue-600 mb-2 italic uppercase">Fajarr Rental</h1>
+            <p class="text-[9px] font-bold text-slate-400 mb-8 uppercase tracking-widest">Premium Car Rent</p>
+            <div class="space-y-4">
+                <input type="text" id="l-user" placeholder="Username" class="w-full p-4 bg-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold border-none">
+                <input type="password" id="l-pass" placeholder="Password" class="w-full p-4 bg-slate-100 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold border-none">
+                <button onclick="prosesLogin()" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all uppercase text-sm">Masuk</button>
+                <button onclick="bukaHalaman('register-page')" class="text-blue-600 underline font-black uppercase text-[10px]">Daftar Akun Baru</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="register-page" class="page items-center justify-center bg-slate-900 p-4">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-2xl w-full max-w-[380px] text-center fade-in">
+            <h2 class="text-2xl font-black text-slate-800 mb-6 uppercase italic">Buat Akun</h2>
+            <div class="space-y-4">
+                <input type="text" id="r-user" placeholder="Username Baru" class="w-full p-4 bg-slate-100 rounded-2xl outline-none font-bold border-none">
+                <input type="password" id="r-pass" placeholder="Password Baru" class="w-full p-4 bg-slate-100 rounded-2xl outline-none font-bold border-none">
+                <button onclick="prosesDaftar()" class="w-full bg-green-600 text-white font-black py-4 rounded-2xl shadow-lg active:scale-95 transition-all uppercase text-sm">Simpan & Daftar</button>
+                <button onclick="bukaHalaman('login-page')" class="w-full text-slate-400 font-bold text-xs uppercase underline">Batal</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="dashboard-page" class="page">
+        <aside class="w-full md:w-64 bg-slate-900 text-white p-4 md:p-6 flex flex-row md:flex-col justify-around md:justify-start items-center md:items-stretch fixed bottom-0 md:relative z-[50] border-t md:border-none border-slate-800 h-[70px] md:h-full">
+            <h2 class="hidden md:block text-xl font-black text-blue-400 italic mb-10 uppercase text-center">Fajarr Rental</h2>
+            <button onclick="showTab('tab-katalog')" class="flex flex-col md:flex-row items-center gap-2 md:p-4 rounded-xl hover:bg-slate-800 transition-all">
+                <span class="text-xl md:text-base">🚗</span><span class="text-[10px] md:text-xs font-black uppercase">Katalog</span>
+            </button>
+            <div id="admin-only-menu" class="hidden">
+               <button onclick="showTab('tab-laporan')" class="flex flex-col md:flex-row items-center gap-2 md:p-4 rounded-xl hover:bg-slate-800 text-yellow-400 transition-all">
+                    <span class="text-xl md:text-base">📊</span><span class="text-[10px] md:text-xs font-black uppercase">Laporan</span>
+                </button>
+            </div>
+            <button onclick="handleLogout()" class="md:mt-auto p-2 md:p-4 text-red-400 font-black text-[10px] md:text-xs uppercase border border-red-900/50 rounded-xl">Logout</button>
+        </aside>
+
+        <main class="flex-1 h-full overflow-y-auto p-4 md:p-8 pb-[100px] md:pb-8">
+            <div id="tab-katalog" class="tab-content fade-in">
+                <h2 class="text-3xl font-black uppercase italic mb-6">Armada</h2>
+                <input type="text" id="pencarian" onkeyup="render()" placeholder="Cari mobil..." class="w-full p-4 bg-white rounded-2xl shadow-sm font-bold border-none mb-8 outline-none focus:ring-2 focus:ring-blue-500">
+                
+                <div id="admin-add-area" class="hidden bg-white p-6 rounded-[2rem] shadow-sm border mb-8">
+                    <div class="flex flex-col md:flex-row gap-3">
+                        <input type="text" id="add-nama" placeholder="Nama Unit" class="flex-1 p-3 bg-slate-50 rounded-xl font-bold border-none">
+                        <input type="number" id="add-harga" placeholder="Harga" class="md:w-32 p-3 bg-slate-50 rounded-xl font-bold border-none">
+                        <button onclick="tambahMobil()" class="bg-green-600 text-white px-6 py-3 rounded-xl font-black uppercase text-xs">Tambah</button>
+                    </div>
+                </div>
+
+                <div id="grid-mobil" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <div id="tab-laporan" class="tab-content hidden fade-in">
+                <h2 class="text-2xl font-black uppercase italic mb-6">Laporan Kas</h2>
+                <div class="bg-white rounded-[2rem] shadow-sm overflow-x-auto">
+                    <table class="w-full text-left text-sm min-w-[500px]">
+                        <thead class="bg-slate-50 border-b font-black text-[10px] uppercase text-slate-400">
+                            <tr><th class="p-6">Penyewa</th><th class="p-6">Unit</th><th class="p-6">Total</th><th class="p-6">Aksi</th></tr>
+                        </thead>
+                        <tbody id="table-laporan" class="divide-y font-bold"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <div id="modal-form" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-end md:items-center justify-center z-[100] p-0 md:p-4">
+        <div class="bg-white p-8 rounded-t-[2.5rem] md:rounded-[2.5rem] w-full max-w-md shadow-2xl fade-in">
+            <h3 class="text-xl font-black text-blue-600 mb-6 uppercase text-center">Data Sewa</h3>
+            <div class="space-y-4">
+                <input type="text" id="s-nama" placeholder="Nama Lengkap" class="w-full p-4 bg-slate-100 rounded-2xl font-bold border-none">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="date" id="s-tgl-sewa" class="w-full p-4 bg-slate-100 rounded-2xl font-bold text-xs">
+                    <input type="date" id="s-tgl-kembali" class="w-full p-4 bg-slate-100 rounded-2xl font-bold text-xs">
+                </div>
+                <button onclick="tampilMenuBayar()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black uppercase text-sm">Bayar</button>
+                <button onclick="closeModal('modal-form')" class="w-full text-slate-400 font-bold text-xs uppercase text-center mt-2">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-pembayaran" class="hidden fixed inset-0 bg-slate-900/80 flex items-end md:items-center justify-center z-[110] p-0 md:p-4">
+        <div class="bg-white p-8 rounded-t-[2.5rem] md:rounded-[2.5rem] w-full max-w-sm shadow-2xl text-center fade-in">
+            <h4 id="pay-total" class="text-3xl font-black text-blue-600 mb-6">Rp 0</h4>
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=FAJARR" class="mx-auto mb-6 w-40 h-40 border-4 border-slate-100 rounded-3xl">
+            <button onclick="konfirmasiSewa()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm">Sudah Transfer</button>
+        </div>
+    </div>
+
+    <div id="modal-struk" class="hidden fixed inset-0 bg-slate-900/95 flex items-center justify-center z-[120] p-6">
+        <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-sm shadow-2xl font-mono text-[11px] text-slate-700 fade-in">
+            <div class="text-center mb-6">
+                <h2 class="text-xl font-black text-blue-600 italic">FAJARR RENTAL</h2>
+                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Receipt Sukses</p>
+            </div>
+            <div id="struk-content" class="space-y-3 border-y border-dashed py-6 mb-8 font-bold"></div>
+            <button onclick="location.reload()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase text-xs">Selesai</button>
+        </div>
+    </div>
+
+    <script>
+        // Database Keys
+        const DB_M = 'U_FIX_MOBIL'; const DB_T = 'U_FIX_TRX'; const DB_U = 'U_FIX_USER';
+
+        let listUsers = JSON.parse(localStorage.getItem(DB_U)) || [{ user: 'admin', pass: '123', role: 'admin' }];
+        let listMobil = JSON.parse(localStorage.getItem(DB_M)) || [{ id: 101, nama: 'Toyota Avanza', harga: 450000 }];
+        let listTrx = JSON.parse(localStorage.getItem(DB_T)) || [];
+        let curOrder = {};
+
+        function save() {
+            localStorage.setItem(DB_M, JSON.stringify(listMobil));
+            localStorage.setItem(DB_T, JSON.stringify(listTrx));
+            localStorage.setItem(DB_U, JSON.stringify(listUsers));
+            render();
+        }
+
+        function bukaHalaman(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function prosesLogin() {
+            const u = document.getElementById('l-user').value.trim();
+            const p = document.getElementById('l-pass').value.trim();
+            const valid = listUsers.find(x => x.user === u && x.pass === p);
+            if(valid) { localStorage.setItem('U_SESS', JSON.stringify(valid)); startApp(); } 
+            else { alert("Login Gagal!"); }
+        }
+
+        function prosesDaftar() {
+            const u = document.getElementById('r-user').value.trim();
+            const p = document.getElementById('r-pass').value.trim();
+            if(!u || !p) return;
+            listUsers.push({ user: u, pass: p, role: 'user' });
+            save(); alert("Berhasil!"); bukaHalaman('login-page');
+        }
+
+        function startApp() {
+            const sess = JSON.parse(localStorage.getItem('U_SESS'));
+            if(!sess) return;
+            bukaHalaman('dashboard-page');
+            if(sess.role === 'admin') {
+                document.getElementById('admin-only-menu').classList.remove('hidden');
+                document.getElementById('admin-add-area').classList.remove('hidden');
+            }
+            render();
+        }
+
+        function render() {
+            const sess = JSON.parse(localStorage.getItem('U_SESS'));
+            const q = document.getElementById('pencarian').value.toLowerCase();
+            const grid = document.getElementById('grid-mobil');
+            grid.innerHTML = '';
+
+            listMobil.filter(m => m.nama.toLowerCase().includes(q)).forEach(m => {
+                const isSewa = listTrx.some(t => t.unit.toLowerCase() === m.nama.toLowerCase());
+                grid.innerHTML += `
+                    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
+                        <span class="${isSewa ? 'bg-red-500' : 'bg-green-500'} text-white px-3 py-1 rounded-full text-[9px] font-black uppercase mb-4 inline-block">${isSewa ? 'Disewa' : 'Tersedia'}</span>
+                        <h4 class="font-black text-xl uppercase italic mb-1">${m.nama}</h4>
+                        <p class="text-blue-600 font-black text-lg mb-6">Rp ${m.harga.toLocaleString()}</p>
+                        ${sess.role === 'user' ? (isSewa ? `<button disabled class="w-full bg-slate-100 text-slate-300 py-3 rounded-2xl font-black uppercase text-[10px]">Penuh</button>` : `<button onclick="bukaFormSewa(${m.id})" class="w-full bg-blue-600 text-white py-3 rounded-2xl font-black uppercase text-[10px]">Sewa</button>`) : `<button onclick="hapusMobil(${m.id})" class="text-red-500 text-[10px] font-black uppercase">Hapus Unit</button>`}
+                    </div>`;
+            });
+
+            if(sess.role === 'admin') {
+                const table = document.getElementById('table-laporan');
+                table.innerHTML = '';
+                listTrx.forEach((t, i) => {
+                    table.innerHTML += `<tr><td class="p-6">${t.penyewa}</td><td class="p-6 uppercase italic">${t.unit}</td><td class="p-6 text-blue-600">Rp ${t.total.toLocaleString()}</td><td class="p-6"><button onclick="kembalikan(${i})" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase">Selesai</button></td></tr>`;
+                });
+            }
+        }
+
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function bukaFormSewa(id) {
+            curOrder = listMobil.find(x => x.id === id);
+            document.getElementById('modal-form').classList.remove('hidden');
+        }
+
+        function tampilMenuBayar() {
+            const n = document.getElementById('s-nama').value;
+            const t1 = new Date(document.getElementById('s-tgl-sewa').value);
+            const t2 = new Date(document.getElementById('s-tgl-kembali').value);
+            if(!n || isNaN(t1.getTime())) return alert("Isi lengkap!");
+            const hari = Math.ceil(Math.abs(t2 - t1) / (1000 * 60 * 60 * 24)) || 1;
+            const total = hari * curOrder.harga;
+            curOrder = { ...curOrder, penyewa: n, total: total, hari: hari, unit: curOrder.nama };
+            document.getElementById('pay-total').innerText = "Rp " + total.toLocaleString();
+            document.getElementById('modal-form').classList.add('hidden');
+            document.getElementById('modal-pembayaran').classList.remove('hidden');
+        }
+
+        function konfirmasiSewa() {
+            listTrx.push(curOrder); save();
+            document.getElementById('struk-content').innerHTML = `
+                <div class="flex justify-between uppercase"><span>Penyewa:</span> <span>${curOrder.penyewa}</span></div>
+                <div class="flex justify-between uppercase"><span>Unit:</span> <span>${curOrder.unit}</span></div>
+                <div class="flex justify-between uppercase"><span>Durasi:</span> <span>${curOrder.hari} Hari</span></div>
+                <div class="mt-4 pt-4 border-t border-dashed text-sm flex justify-between font-black text-blue-600"><span>TOTAL:</span> <span>Rp ${curOrder.total.toLocaleString()}</span></div>
+            `;
+            document.getElementById('modal-pembayaran').classList.add('hidden');
+            document.getElementById('modal-struk').classList.remove('hidden');
+        }
+
+        function tambahMobil() {
+            const n = document.getElementById('add-nama').value;
+            const h = parseInt(document.getElementById('add-harga').value);
+            if(n && h) { listMobil.push({ id: Date.now(), nama: n, harga: h }); save(); }
+        }
+
+        function kembalikan(i) { listTrx.splice(i, 1); save(); }
+        function hapusMobil(id) { if(confirm("Hapus?")) { listMobil = listMobil.filter(x => x.id !== id); save(); } }
+        function handleLogout() { localStorage.removeItem('U_SESS'); location.reload(); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        window.onload = startApp;
+    </script>
+</body>
+</html>
